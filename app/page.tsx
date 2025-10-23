@@ -16,7 +16,7 @@ const features = [
   },
   {
     title: "Freemium friendly",
-    description: "Spin up 3 threads/month free. When you’re ready to go ham, Pro is just $9/mo.",
+    description: "Spin up 100 threads/month free. When you’re ready to go ham, Pro is just $9/mo.",
   },
 ];
 
@@ -79,7 +79,7 @@ export default function HomePage() {
           >
             Log in
           </Link>
-          <p className="text-sm text-neutral-500">3 free threads a month. No credit card.</p>
+          <p className="text-sm text-neutral-500">100 free threads a month. No credit card.</p>
         </div>
       </section>
 
@@ -96,7 +96,7 @@ export default function HomePage() {
         <div className="space-y-4">
           <h2 className="text-2xl font-semibold text-neutral-50">Upgrade when you’re ready.</h2>
           <p className="text-sm text-neutral-400">
-            Start free with 3 thread generations every month. When launches are weekly and you need more output, go Pro for unlimited generations.
+            Start free with 100 thread generations every month. When launches are weekly and you need more output, go Pro for unlimited generations.
           </p>
           <ul className="space-y-2 text-sm text-neutral-300">
             <li>• Unlimited AI threads with maker tone</li>
@@ -111,7 +111,7 @@ export default function HomePage() {
               <span className="text-3xl font-bold text-neutral-50">$0</span>
               <span className="text-sm text-neutral-500">/ month</span>
             </div>
-            <p className="mt-2 text-sm text-neutral-400">3 threads a month. No card required.</p>
+            <p className="mt-2 text-sm text-neutral-400">100 threads a month. No card required.</p>
           </div>
           <div className="mt-8 border-t border-neutral-800 pt-8">
             <div className="text-sm uppercase tracking-wide text-neutral-400">Pro</div>

@@ -4,14 +4,15 @@ import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import toast from "react-hot-toast";
 
+import { ConnectXButton } from "@/components/ConnectXButton";
 import { PricingCard } from "@/components/PricingCard";
 import { ThreadInput } from "@/components/ThreadInput";
 import { ThreadOutput } from "@/components/ThreadOutput";
 import { XAccountConnection } from "@/components/XAccountConnection";
 import { Button } from "@/components/ui/button";
-import type { ThreadResponse, ThreadTweet } from "@/types/thread";
+import type { ThreadMode, ThreadResponse, ThreadTweet } from "@/types/thread";
 
-const FREE_LIMIT = 3;
+const FREE_LIMIT = 100;
 
 type DashboardClientProps = {
   initialThreadCount: number;
@@ -30,6 +31,8 @@ export function DashboardClient({ initialThreadCount, subscriptionStatus, email,
   const [publishTips, setPublishTips] = useState<string | undefined>(undefined);
   const [isGenerating, setIsGenerating] = useState(false);
   const [isUpgrading, setIsUpgrading] = useState(false);
+  const [mode, setMode] = useState<ThreadMode>("thread");
+  const [outputMode, setOutputMode] = useState<ThreadMode>("thread");
 
   const isPro = subscriptionStatus === "pro";
   const remainingCredits = isPro ? Infinity : Math.max(FREE_LIMIT - usageCount, 0);
@@ -68,11 +71,13 @@ export function DashboardClient({ initialThreadCount, subscriptionStatus, email,
   const handleGenerate = async (values: { topic: string; vibe: string; template: string }) => {
     try {
       setIsGenerating(true);
+      console.log("[DashboardClient] sending /api/generate-thread payload", values);
       const response = await fetch("/api/generate-thread", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(values),
       });
+      console.log("[DashboardClient] /api/generate-thread status", response.status);
 
       if (response.status === 402) {
         toast.error("You hit the free limit. Upgrade to keep the momentum.");
@@ -80,8 +85,16 @@ export function DashboardClient({ initialThreadCount, subscriptionStatus, email,
       }
 
       if (!response.ok) {
-        const error = await response.json().catch(() => ({ message: "Unable to generate thread." }));
-        toast.error(error.message ?? "ThreadForge hiccup. Try again." );
+        const rawError = await response.text();
+        console.warn("[DashboardClient] /api/generate-thread error body", rawError);
+        const error = (() => {
+          try {
+            return JSON.parse(rawError);
+          } catch {
+            return { message: rawError };
+          }
+        })();
+        toast.error(error.message ?? "ThreadForge hiccup. Try again.");
         return;
       }
 
@@ -90,7 +103,10 @@ export function DashboardClient({ initialThreadCount, subscriptionStatus, email,
       setEstimatedImpressions(data.estimatedImpressions);
       setPublishTips(data.publishTips);
       setUsageCount(data.usage);
-      toast.success("Fresh thread drafted. Polish and ship!");
+      const responseMode = data.mode ?? values.mode;
+      setOutputMode(responseMode);
+      setMode(responseMode);
+      toast.success(responseMode === "thread" ? "Fresh thread drafted. Polish and ship!" : "Single post locked. Polish and ship!");
       router.refresh();
     } catch (error) {
       console.error(error);
@@ -98,6 +114,14 @@ export function DashboardClient({ initialThreadCount, subscriptionStatus, email,
     } finally {
       setIsGenerating(false);
     }
+  };
+
+  const handleModeChange = (nextMode: ThreadMode) => {
+    setMode(nextMode);
+    setThread([]);
+    setEstimatedImpressions(undefined);
+    setPublishTips(undefined);
+    setOutputMode(nextMode);
   };
 
   const handleUpgrade = async () => {
@@ -123,14 +147,15 @@ export function DashboardClient({ initialThreadCount, subscriptionStatus, email,
     <div className="space-y-6">
       <div className="flex flex-col gap-4 rounded-2xl border border-neutral-800 bg-neutral-950/60 p-6 md:flex-row md:items-center md:justify-between">
         <div>
-          <h1 className="text-2xl font-semibold text-neutral-100">Hey {email.split("@")[0]}, let’s forge a thread.</h1>
+          <h1 className="text-2xl font-semibold text-neutral-100">Hey {email.split("@")[0]}, let’s forge a {mode === "thread" ? "thread" : "single post"}.</h1>
           <p className="text-sm text-neutral-400">
             {isPro
-              ? "Unlimited threads, unlimited experiments."
-              : `You have ${Math.max(remainingCredits, 0)} free threads left this month.`}
+              ? "Unlimited generations, unlimited experiments."
+              : `You have ${Math.max(remainingCredits, 0)} free generations left this month.`}
           </p>
         </div>
         <div className="flex items-center gap-3">
+          <ConnectXButton isConnected={isXConnected} />
           {!isPro && (
             <Button onClick={handleUpgrade} disabled={isUpgrading}>
               {isUpgrading ? "Redirecting..." : "Upgrade to Pro"}
@@ -156,6 +181,8 @@ export function DashboardClient({ initialThreadCount, subscriptionStatus, email,
             isGenerating={isGenerating}
             remainingCredits={isPro ? Number.POSITIVE_INFINITY : Math.max(remainingCredits, 0)}
             isPro={isPro}
+            mode={mode}
+            onModeChange={handleModeChange}
           />
           <ThreadOutput
             thread={thread}
@@ -168,6 +195,7 @@ export function DashboardClient({ initialThreadCount, subscriptionStatus, email,
             }}
             estimatedImpressions={estimatedImpressions}
             publishTips={publishTips}
+            mode={outputMode}
           />
         </div>
 

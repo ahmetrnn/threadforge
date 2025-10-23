@@ -5,8 +5,11 @@ export type ThreadTweet = {
   isCta: boolean;
 };
 
+export type ThreadMode = "thread" | "single";
+
 export type ThreadResponse = {
   thread: ThreadTweet[];
   estimatedImpressions: string;
   publishTips?: string;
+  mode?: ThreadMode;
 };

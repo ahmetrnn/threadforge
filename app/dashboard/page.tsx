@@ -11,15 +11,15 @@ export const metadata: Metadata = {
 export default async function DashboardPage() {
   const supabase = createSupabaseServerClient();
   const {
-    data: { session },
-  } = await supabase.auth.getSession();
+    data: { user },
+  } = await supabase.auth.getUser();
 
-  if (!session) {
+  if (!user) {
     redirect("/login");
   }
 
-  const userId = session.user.id;
-  const email = session.user.email ?? "maker";
+  const userId = user.id;
+  const email = user.email ?? "maker";
 
   let { data: profile } = await supabase
     .from("users")
@@ -42,6 +42,9 @@ export default async function DashboardPage() {
       .single();
     profile = insertedProfile ?? { threads_used: 0, subscription_status: "free", email, x_username: null, x_connected_at: null };
   }
+
+  const xTokens = (profile?.x_tokens ?? null) as { access_token?: string } | null;
+  const isXConnected = Boolean(xTokens?.access_token);
 
   return (
     <div className="mx-auto max-w-6xl space-y-8 px-4 py-10">

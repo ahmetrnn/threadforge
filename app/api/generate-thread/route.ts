@@ -1,218 +1,222 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
+import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs";
+import { cookies } from "next/headers";
 
 import { getOpenAIClient } from "@/lib/openai";
-import { createSupabaseRouteHandlerClient } from "@/lib/supabase";
-import type { ThreadTweet } from "@/types/thread";
+import type { ThreadMode, ThreadTweet } from "@/types/thread";
 
-const FREE_LIMIT = 3;
+export async function POST(req: NextRequest) {
+  const cookieStore = cookies();
+  const supabase = createRouteHandlerClient({ cookies: () => cookieStore });
 
-export async function POST(request: Request) {
   try {
-    const { topic, vibe, template } = await request.json();
-
-    if (!topic || !vibe || !template) {
-      return NextResponse.json({ message: "Missing fields." }, { status: 400 });
-    }
-
-    const supabase = createSupabaseRouteHandlerClient();
     const {
-      data: { session },
-    } = await supabase.auth.getSession();
+      data: { user },
+    } = await supabase.auth.getUser();
 
-    if (!session?.user) {
-      return NextResponse.json({ message: "Unauthorized." }, { status: 401 });
+    if (!user) {
+      return NextResponse.json({ error: "Login ol kanka!" }, { status: 401 });
+    }
+    console.log("[API] User OK:", user.email);
+
+    const body = await req.json().catch(() => ({}));
+    console.log("[API] Body OK:", body);
+
+    const rawDraft = typeof body.draft === "string" ? body.draft.trim() : "";
+    const rawRefine = typeof body.refinePrompt === "string" ? body.refinePrompt.trim() : "";
+    const rawStyle = typeof body.style === "string" ? body.style.trim() : "";
+    const rawMode = body.mode as ThreadMode | undefined;
+
+    if (!rawDraft) {
+      return NextResponse.json({ error: "Draft required" }, { status: 400 });
     }
 
-    const userId = session.user.id;
+    const mode: ThreadMode = rawMode === "single" ? "single" : "thread";
+    const refinePrompt = rawRefine || "raw viral thread";
+    const style = rawStyle || "raw";
 
-    const { data: profile, error: profileError } = await supabase
-      .from("users")
-      .select("threads_used, subscription_status")
-      .eq("auth_user_id", userId)
-      .maybeSingle();
-
-    if (profileError) {
-      console.error(profileError);
-      return NextResponse.json({ message: "Unable to fetch usage." }, { status: 500 });
-    }
-
-    const threadsUsed = profile?.threads_used ?? 0;
-    const subscriptionStatus = (profile?.subscription_status as "free" | "pro") ?? "free";
-
-    if (subscriptionStatus !== "pro" && threadsUsed >= FREE_LIMIT) {
-      return NextResponse.json({ message: "Free limit reached." }, { status: 402 });
-    }
-
-    const openai = getOpenAIClient();
-
-    const fewShotDataset = `Dataset: 3 Viral Thread Örneği (Kopyala-Yapıştır App'e)Bunlar, X'ten çektiğim top post'lardan (post:0, post:6, post:8 gibi) derlenmiş. Her biri 6-8 tweet, yüksek engagement için optimize: Hook > Adımlar > Hikaye > CTA. App'inde "examples" array'i olarak sakla, prompt'a feed et.
-Örnek 1: "Daily Progress" Template (Viral Tip: Kişisel Hikaye + Adımlar – 1.5M View Potansiyeli)
-
-1/7: Herkes "SaaS'ını sessizce build et" diyor. Ama gerçek? Sessiz build edenler sessizce ölüyor. Ben vibe coding'le bir roadmap çizdim ve 1 haftada 50 signup aldım. İşte kaoslu yolculuğum – sen de dene. 😅
-
-2/7: Adım 1: Hook'u bul. Benimki: "0'dan $1K MRR'ye 30 günde?" İnsanlar reply atıyor, waitlist doluyor. Senin pain point'in ne? (Cliffhanger)
-
-3/7: Adım 2: No-code stack kur (Vercel + Supabase). Kod bilmiyorsan bile 2 saatte MVP deploy. Benim hatam: İlk commit'te auth'u unuttum, 3 saat debug. Ders: Test et erken!
-
-4/7: Adım 3: Build in public yap. X'te daily post: "D3: AI thread gen eklendi [screenshot]". Engagement? 200 like, 10 DM feedback. Transparency = trust.
-
-5/7: Adım 4: Monetize et. Stripe sandbox'la $9/mo pro tier. İlk user: "Bu thread'ler altın!" dedi. MRR hack: Freemium limit koy (3 free thread).
-
-6/7: Twist: Virality skoru ekle (est. impressions). Benim thread'im 2K view aldı – seninkisi? 
-
-7/7: CTA: Bu roadmap'i vibe'ına uydur, X'e post'la. Reply "ROADMAP" de, sana custom template DM'leyeyim. Follow for more chaos. #BuildInPublic
-Est. Impressions: 1K-5K | Tips: Sabah 9'da post'la, screenshot ekle.
-
-Örnek 2: "Product Teaser" Template (Viral Tip: Feature List + Örnek – 619 Like'lı Launch Tarzı)
-
-1/6: Indie maker'lar için nihai hack: ThreadForge'la viral X thread'leri 60s'da üret. Ben test ettim, 1 thread'le 300 follow kazandım. İşte breakdown 🧵
-
-2/6: Feature 1: Topic gir (e.g., "SaaS vibe coding"), vibe seç (funny/raw). AI hook üretir: "Vibe coding kaosu: 0'dan MVP'ye [emoji]".
-
-3/6: Feature 2: Template'ler – Daily Progress için: Win > Challenge > Next Step. Örnek: "D1: Repo kurdum, ama auth patladı 😩".
-
-4/6: Feature 3: Emoji + CTA auto-add. Her tweet <280 char, cliffhanger'la bağla. Benim teaser thread'im: 500 impression öngörüsü tuttu!
-
-5/6: Neden diğer tool'lar emme? Basit, $9/mo, X entegrasyonu. Enterprise bloat yok – solo builder için.
-
-6/6: Denemek ister misin? Reply "TEASER" de, free trial link DM. Follow for launch updates. #IndieHacker
-Est. Impressions: 800-3K | Tips: Video demo ekle, poll koy (e.g., "Hangi template?").
-
-Örnek 3: "Growth Hack Share" Template (Viral Tip: Kontrast + Flywheel – 1279 Like'lı Taktik Tarzı)
-
-1/8: Çoğu creator X'te $5 payout peşinde kölelik yapıyor. Ben? Vibe coding'le 500K user'lı app'ler build ettim, content otomatik viral. İşte product-content flywheel'im 🧵
-
-2/8: Kontrast: Content slave'ler algoritma kovalıyor. Ben build ediyorum – her commit tweet oluyor. Sonuç? 20K follow organik.
-
-3/8: Adım 1: Build in public. "D5: Thread gen eklendi [GIF]". Fail'leri paylaş: "API key unuttum, 2 saat sleep 😴" – samimiyet engagement'ı 2x yapar.
-
-4/8: Adım 2: Feature'ı thread'e çevir. Yeni analytics? "Est. impressions hesapla – benimki 2K!" diye post'la.
-
-5/8: Adım 3: Öğret. Hata'ndan ders: "MRR hack: Referral ekle". Audience guide olur, feedback loop kapanır.
-
-6/8: Adım 4: Loop'u döndür. İyi product = iyi content > audience > feedback > better product. Sonsuz MRR.
-
-7/8: Twist: Bu flywheel'le $10K MRR'ye çık. Benim app'imde dene.
-
-8/8: Hack'i uygula, sonuçlarını reply at. "FLYWHEEL" de, detaylı guide DM. #SaaSGrowth
-Est. Impressions: 2K-10K | Tips: Data screenshot ekle, quote'lanabilir yap.`;
-
-    const systemPrompt = `You are ThreadForge Pro: Viral X thread'leri üreten AI, indie maker'lar için. Amaç: 1M+ view potansiyelli, engagement bombası thread'ler – hook'la yakala, adımlarla value ver, samimi vibe'la akıt, CTA'yla kapat. X trend'lerine göre: Kontrast hook ("Herkes diyor ama..."), 5-8 tweet, numaralı/bullets, cliffhanger'lar, maker jargon (vibe coding, MRR hack, build in public). Emojiler az (1-2/tweet), <280 char/tweet.
-
-User Inputs:
-- TOPIC: ${topic}
-- VIBE: ${vibe} (funny: chaotic/self-deprecating; inspirational: motivational; raw: honest fails; data-driven: metrics; teaser: mystery build-up)
-- TEMPLATE: ${template} (Daily Progress: Win>Challenge>Next; Product Teaser: Features+Example; Growth Hack: Flywheel/Steps)
-
-Step-by-Step (internal think, no output):
-1. HOOK: Sert gerçek/kontrast/personal win ile başla (e.g., "Herkes sessiz build diyor, ama ben vibe'la 50 signup aldım").
-2. STRUCTURE: 5-8 tweet – numaralı adımlar/bullets, her tweet cliffhanger'la bitir. VIBE infuse: Funny=😅 jokes; Raw=fail hikayesi.
-3. VALUE: Educational/story – X viral'larından ilham: Adımlar actionable, metrics ekle (est. impressions).
-4. CTA: Son tweet'te reply/DM/follow, app promo (e.g., "Reply 'TEMPLATE' for DM").
-5. OPTIMIZE: Authentic maker tone, predict virality (1K-10K based on niche).
-
-Few-Shot Examples:
-${fewShotDataset}
-
-Output ONLY JSON:
+    const fewShotDataset = `Example 1: DRAFT="Vibe coding kaosu, bug'lar her yerde", REFINE_PROMPT="raw narrative", STYLE="raw", MODE="single"
 {
   "thread": [
     {
       "tweetNumber": 1,
-      "text": "Full tweet (<280 char)",
-      "emojis": ["🚀"],
-      "isCta": false
+      "text": "Vibe coding kaosu: Herkes 'hızlı ship' diyor ama bug'lar her yerde, D1'de 3 saat debug'la yattım, $0 MRR – kaos. Async patladı ama playlist tweak'le %50 verim up, 2 feature bitirdim, obsession gibi devam ettim. Senin kaosun nasıl, reply at DM al hack! #BuildInPublic",
+      "emojis": ["😩"],
+      "isCta": true
     }
   ],
-  "estimatedImpressions": "1K-5K (hook + steps)",
-  "publishTips": "9AM post, screenshot ekle, poll koy."
+  "estimatedImpressions": "500-2K (raw kaos + arc)",
+  "publishTips": "9AM post, bug screenshot ekle"
 }
 
-Invalid input? {"error": "Topic/vibe/template lazım"}.`;
+Example 2: DRAFT="SaaS growth ipucu", REFINE_PROMPT="funny listicle", STYLE="funny", MODE="thread"
+{
+  "thread": [
+    {"tweetNumber":1, "text":"SaaS growth ipucu: Herkes 'viral ol' diyor ama benim ilk MRR $0, 3 ay kaos 😅. 1. Market gap bul – ben 500 lead gen ettim, conversion %30 ama overfeature churn up. Devam mı? (1/5)", "emojis":["🤯"], "isCta":false},
+    {"tweetNumber":2, "text":"2. X tutorials post et – 4 thread/hafta, 2K view. Fail: Bug'la gece yattım, ama tweak'le MRR $500.", "emojis":[], "isCta":false},
+    {"tweetNumber":3, "text":"3. Feedback al, refine UI – Discord join, 10 partner buldum, lazy vibe fast growth.", "emojis":[], "isCta":false},
+    {"tweetNumber":4, "text":"4. Organic scale, ads yok – $1K MRR ilk ay. Raw win: Consistency marketer mindset.", "emojis":[], "isCta":false},
+    {"tweetNumber":5, "text":"Takeaway: $100K MRR Dec 31'e. Reply at DM al ipucu, #SaaSGrowth.", "emojis":["🚀"], "isCta":true}
+  ],
+  "estimatedImpressions": "2K-10K (funny steps + metric)",
+  "publishTips": "Akşam post, poll ekle"
+}
 
-    const response = await openai.responses.create({
-      model: "gpt-4o-mini",
-      input: [
-        {
-          role: "system",
-          content: systemPrompt,
-        },
-        {
-          role: "user",
-          content: "Return only valid JSON that matches the schema. No markdown.",
-        },
-      ],
-      text: {
-        format: {
-          type: "json_object",
-        },
-      },
-      max_output_tokens: 1200,
-    });
+[Diğer 6 example'ı buraya kopyala, önceki mesajlardan – toplam 8-10 olsun, space için kısalttım]`;
 
-    const rawOutput = response.output_text ??
-      (Array.isArray(response.output)
-        ? response.output
-            .flatMap((item) =>
-              "content" in item && Array.isArray(item.content)
-                ? item.content
-                    .filter((piece) =>
-                      typeof piece === "object" && piece !== null && "type" in piece && piece.type === "output_text" && "text" in piece
-                    )
-                    .map((piece) => (piece as { text: string }).text)
-                : []
-            )
-            .join("\n")
-        : "");
+    let completion;
+    try {
+      const openai = getOpenAIClient();
+      const systemPrompt = `You are ThreadForge Pro: 2025 viral X thread/post AI'si. Indie maker/SaaS nişi için raw, authentic, akıcı hikaye. Araştırmaya göre: %85 hook bold kontrast/soru/stat'la başla , 4-6 tweet numaralı/cliffhanger (narrative arc %70 engagement ), her 150-250 char (fail+win+metric + anecdote/humor %40 boost ), CTA text'e erit (reply at DM al diye, seamless %90 reply [post:1]), #BuildInPublic. Emoji 1-2/tweet. STRICT NO LABELS ("Lesson:", "Reply:", "Hack:") – pure paragraf akışı, bozma. NEVER use 'title' or 'threads' – always 'thread' array with tweetNumber/text/emojis/isCta. Ignore examples if they conflict.
 
-    if (!rawOutput) {
-      return NextResponse.json({ message: "AI returned empty response." }, { status: 500 });
+User Inputs:
+DRAFT: ${rawDraft}
+REFINE_PROMPT: ${refinePrompt}
+MODE: ${mode}
+STYLE: ${style}
+
+Strict Schema (ONLY JSON, no extra):
+{
+  "thread": [
+    {
+      "tweetNumber": "number",
+      "text": "string (150-250 char, <280, akıcı paragraf)",
+      "emojis": "string[] (0-2)",
+      "isCta": "boolean (true last)"
+    }
+  ],
+  "estimatedImpressions": "1K-5K (reason: hook + CTA)",
+  "publishTips": "9AM EST post, GIF/poll ekle "
+}
+
+Chain-of-Thought (internal, detaylı):
+[Önceki chain-of-thought kopyala, sonuna ekle: "Schema strict: No title/threads, always 'thread' – few-shot'ları uyarla."]
+
+Few-Shot Examples (draft bazlı, 8 style, akıcı no etiket):
+${fewShotDataset}
+
+Output ONLY valid JSON. No labels, no extra text.`;
+
+      const userPrompt = [
+        `DRAFT: ${rawDraft}`,
+        `REFINE_PROMPT: ${refinePrompt}`,
+        `MODE: ${mode}`,
+        `STYLE: ${style}`
+      ].join("\n");
+
+      completion = await openai.chat.completions.create({
+        model: "gpt-4o-mini",
+        messages: [
+          { role: "system", content: systemPrompt },
+          { role: "user", content: userPrompt },
+        ],
+        temperature: 0.3, // Düşürdüm, predictable schema
+        response_format: { type: "json_object" },
+      });
+      console.log(
+        "[API] OpenAI success – content length:",
+        completion.choices[0]?.message?.content?.length ?? 0
+      );
+    } catch (openaiError) {
+      console.error("[API] OpenAI error:", openaiError);
+      return NextResponse.json({ error: "OpenAI hiccup" }, { status: 500 });
     }
 
-    const parsed = JSON.parse(rawOutput) as {
+    const content = completion.choices[0]?.message?.content ?? "";
+    if (!content) {
+      return NextResponse.json({ error: "Empty AI response" }, { status: 500 });
+    }
+    console.log("[API] Full OpenAI content:", content);
+
+    let parsed: {
       thread?: ThreadTweet[];
+      threads?: any[];
+      title?: string;
       estimatedImpressions?: string;
       publishTips?: string;
+      [key: string]: unknown;
     };
 
-    if (!parsed.thread || !Array.isArray(parsed.thread) || parsed.thread.length === 0) {
-      return NextResponse.json({ message: "AI response malformed." }, { status: 500 });
+    try {
+      parsed = JSON.parse(content);
+
+      // Fallback mapping for wrong schema
+      if (parsed && parsed.threads && Array.isArray(parsed.threads)) {
+        console.log("[API] Mapping 'threads' to 'thread'");
+        const threadsArray = parsed.threads as any[];
+        parsed.thread = threadsArray.map((item: any, index: number) => ({
+          tweetNumber: index + 1,
+          text: `${item.day ?? `Day ${index + 1}`}: ${item.hack ?? ""} ${item.progress ?? ""} (Raw hack – dene!)`.trim().slice(0, 280),
+          emojis: Array.isArray(item.emojis) ? item.emojis.slice(0, 2) : [],
+          isCta: index === threadsArray.length - 1,
+        }));
+        delete (parsed as any).threads;
+        delete (parsed as any).title;
+        parsed.estimatedImpressions = parsed.estimatedImpressions ?? "1K-5K (mapped fallback)";
+        parsed.publishTips = parsed.publishTips ?? "9AM post, GIF ekle";
+      } else if (!parsed.thread || !Array.isArray(parsed.thread)) {
+        throw new Error("No thread array");
+      }
+
+      // Regex fallback if parse partial
+      if (!parsed.thread) {
+        const threadMatch = content.match(/\{[^{}]*(?:"thread":\[[\s\S]*?\])/);
+        if (threadMatch) {
+          console.log("[API] Regex fallback used");
+          parsed = JSON.parse(threadMatch[0]);
+        } else {
+          throw new Error("No thread found in content");
+        }
+      }
+    } catch (parseError) {
+      console.error("[API] Parse error – content:", content);
+      return NextResponse.json({ error: "AI output parse failed" }, { status: 500 });
     }
 
-    const sanitizedThread: ThreadTweet[] = parsed.thread
+    const sanitizedThread: ThreadTweet[] = (parsed.thread ?? [])
       .filter((tweet) => tweet?.text)
       .map((tweet, index) => ({
         tweetNumber: tweet.tweetNumber ?? index + 1,
-        text: tweet.text.slice(0, 280),
-        emojis: Array.isArray(tweet.emojis) ? tweet.emojis.slice(0, 5) : [],
+        text: tweet.text.slice(0, 280).trim(),
+        emojis: Array.isArray(tweet.emojis) ? tweet.emojis.slice(0, 2) : [],
         isCta: Boolean(tweet.isCta),
       }))
-      .slice(0, 10);
+      .slice(0, mode === "single" ? 1 : 6);
 
     if (sanitizedThread.length === 0) {
-      return NextResponse.json({ message: "AI response missing tweets." }, { status: 500 });
+      return NextResponse.json({ error: "AI output missing tweets" }, { status: 500 });
     }
 
-    const { data: updatedProfile, error: updateError } = await supabase
+    const { data: usageRow, error: usageFetchError } = await supabase
       .from("users")
-      .update({ threads_used: threadsUsed + 1 })
-      .eq("auth_user_id", userId)
       .select("threads_used")
-      .single();
+      .eq("id", user.id)
+      .maybeSingle();
+
+    if (usageFetchError) {
+      console.error("[API] Usage fetch error:", usageFetchError);
+    }
+
+    const nextUsage = (usageRow?.threads_used ?? 0) + 1;
+
+    const { error: updateError } = await supabase
+      .from("users")
+      .update({ threads_used: nextUsage })
+      .eq("id", user.id);
 
     if (updateError) {
-      console.error(updateError);
-      return NextResponse.json({ message: "Failed to update usage." }, { status: 500 });
+      console.error("[API] Usage update error:", updateError);
     }
 
     return NextResponse.json({
       thread: sanitizedThread,
-      estimatedImpressions: parsed.estimatedImpressions ?? "500-2K",
-      publishTips: parsed.publishTips ?? "Post at 9AM EST",
-      usage: updatedProfile.threads_used,
+      estimatedImpressions: parsed.estimatedImpressions ?? "1K-5K (reason: hook + CTA)",
+      publishTips: parsed.publishTips ?? "9AM EST post, screenshot/GIF ekle, poll koy",
+      mode,
+      usage: nextUsage,
     });
   } catch (error) {
-    console.error("generate-thread error", error);
-    return NextResponse.json({ message: "Unexpected error." }, { status: 500 });
+    console.error("[API] Gen failed:", error);
+    return NextResponse.json({ error: "Gen failed" }, { status: 500 });
   }
 }
