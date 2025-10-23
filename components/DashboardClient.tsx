@@ -1,12 +1,13 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import toast from "react-hot-toast";
 
 import { PricingCard } from "@/components/PricingCard";
 import { ThreadInput } from "@/components/ThreadInput";
 import { ThreadOutput } from "@/components/ThreadOutput";
+import { XAccountConnection } from "@/components/XAccountConnection";
 import { Button } from "@/components/ui/button";
 import type { ThreadResponse, ThreadTweet } from "@/types/thread";
 
@@ -16,10 +17,13 @@ type DashboardClientProps = {
   initialThreadCount: number;
   subscriptionStatus: "free" | "pro";
   email: string;
+  xUsername?: string | null;
+  xConnectedAt?: string | null;
 };
 
-export function DashboardClient({ initialThreadCount, subscriptionStatus, email }: DashboardClientProps) {
+export function DashboardClient({ initialThreadCount, subscriptionStatus, email, xUsername, xConnectedAt }: DashboardClientProps) {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [usageCount, setUsageCount] = useState(initialThreadCount);
   const [thread, setThread] = useState<ThreadTweet[]>([]);
   const [estimatedImpressions, setEstimatedImpressions] = useState<string | undefined>(undefined);
@@ -29,6 +33,37 @@ export function DashboardClient({ initialThreadCount, subscriptionStatus, email 
 
   const isPro = subscriptionStatus === "pro";
   const remainingCredits = isPro ? Infinity : Math.max(FREE_LIMIT - usageCount, 0);
+
+  // Handle X OAuth callback
+  useEffect(() => {
+    const xConnect = searchParams?.get("x_connect");
+    if (xConnect === "true") {
+      // User just returned from X OAuth, save their connection
+      const saveConnection = async () => {
+        try {
+          const response = await fetch("/api/twitter/connect", {
+            method: "POST",
+          });
+
+          if (!response.ok) {
+            const error = await response.json().catch(() => ({ message: "Failed to connect." }));
+            toast.error(error.message ?? "Failed to connect X account.");
+            return;
+          }
+
+          const data = await response.json();
+          toast.success(`X account @${data.username} connected!`);
+          router.replace("/dashboard"); // Remove query param
+          router.refresh();
+        } catch (error) {
+          console.error("X connection save error:", error);
+          toast.error("Failed to save X connection.");
+        }
+      };
+
+      saveConnection();
+    }
+  }, [searchParams, router]);
 
   const handleGenerate = async (values: { topic: string; vibe: string; template: string }) => {
     try {
@@ -140,12 +175,13 @@ export function DashboardClient({ initialThreadCount, subscriptionStatus, email 
           {!isPro && (
             <PricingCard onUpgrade={handleUpgrade} status={subscriptionStatus} />
           )}
+          <XAccountConnection xUsername={xUsername} xConnectedAt={xConnectedAt} />
           <div className="rounded-2xl border border-neutral-800 bg-neutral-950/60 p-6 text-sm text-neutral-400">
             <h3 className="text-base font-semibold text-neutral-100">Thread chef tips</h3>
             <ul className="mt-3 space-y-2">
               <li>• Reply to every comment within 15 minutes for extra reach.</li>
               <li>• Schedule threads for 9AM EST — builder Twitter is caffeinated.</li>
-              <li>• Hook, value, CTA. Don’t bury the lead.</li>
+              <li>• Hook, value, CTA. Don't bury the lead.</li>
             </ul>
           </div>
         </div>
