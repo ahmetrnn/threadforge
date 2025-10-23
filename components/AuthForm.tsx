@@ -57,6 +57,15 @@ export function AuthForm({ mode }: AuthFormProps) {
     }
   };
 
+  const handleTwitter = async () => {
+    const redirectTo = `${window.location.origin}/dashboard`;
+    const { error } = await supabase.auth.signInWithOAuth({ provider: "twitter", options: { redirectTo } });
+    if (error) {
+      toast.error("X login failed.");
+      console.error(error);
+    }
+  };
+
   return (
     <div className="rounded-2xl border border-neutral-800 bg-neutral-950/60 p-6">
       <form onSubmit={handleSubmit} className="space-y-4">
@@ -88,7 +97,15 @@ export function AuthForm({ mode }: AuthFormProps) {
           {isSubmitting ? "One sec..." : mode === "login" ? "Log in" : "Create account"}
         </Button>
       </form>
-      <div className="mt-6">
+      <div className="mt-6 space-y-3">
+        <Button
+          type="button"
+          variant="outline"
+          className="w-full"
+          onClick={handleTwitter}
+        >
+          Continue with X
+        </Button>
         <Button
           type="button"
           variant="outline"

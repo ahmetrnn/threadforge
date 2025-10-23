@@ -23,7 +23,7 @@ export default async function DashboardPage() {
 
   let { data: profile } = await supabase
     .from("users")
-    .select("threads_used, subscription_status, email")
+    .select("threads_used, subscription_status, email, x_username, x_connected_at")
     .eq("auth_user_id", userId)
     .maybeSingle();
 
@@ -38,9 +38,9 @@ export default async function DashboardPage() {
         },
         { onConflict: "email" }
       )
-      .select("threads_used, subscription_status, email")
+      .select("threads_used, subscription_status, email, x_username, x_connected_at")
       .single();
-    profile = insertedProfile ?? { threads_used: 0, subscription_status: "free", email };
+    profile = insertedProfile ?? { threads_used: 0, subscription_status: "free", email, x_username: null, x_connected_at: null };
   }
 
   return (
@@ -49,6 +49,8 @@ export default async function DashboardPage() {
         initialThreadCount={profile?.threads_used ?? 0}
         subscriptionStatus={(profile?.subscription_status as "free" | "pro") ?? "free"}
         email={profile?.email ?? email}
+        xUsername={profile?.x_username}
+        xConnectedAt={profile?.x_connected_at}
       />
     </div>
   );

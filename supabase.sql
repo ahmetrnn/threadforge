@@ -8,6 +8,12 @@ create table if not exists public.users (
   email text not null unique,
   threads_used integer not null default 0,
   subscription_status text not null default 'free',
+  x_account_id text,
+  x_username text,
+  x_access_token text,
+  x_refresh_token text,
+  x_connected_at timestamptz,
+  x_token_expires_at timestamptz,
   created_at timestamptz not null default timezone('utc'::text, now())
 );
 
