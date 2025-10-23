@@ -1,111 +1,177 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { Select } from "@/components/ui/select";
-import { Badge } from "@/components/ui/badge";
-import toast from "react-hot-toast";
-
-const VIBES = [
-  { value: "funny", label: "Funny" },
-  { value: "inspirational", label: "Inspirational" },
-  { value: "raw", label: "Raw" },
-  { value: "data-driven", label: "Data-driven" },
-  { value: "teaser", label: "Teaser" },
-];
-
-const TEMPLATES = [
-  "Daily Progress",
-  "Product Teaser",
-  "BTS",
-  "AMA",
-  "Growth Hack",
-];
-
-type ThreadInputValues = {
-  topic: string;
-  vibe: string;
-  template: string;
-};
+import type { ThreadMode } from "@/types/thread";
 
 type ThreadInputProps = {
-  onGenerate: (values: ThreadInputValues) => Promise<void>;
+  onGenerate: (values: { draft: string; refinePrompt?: string; mode: ThreadMode; style: string }) => void;
   isGenerating: boolean;
   remainingCredits: number;
   isPro: boolean;
+  mode: ThreadMode;
+  onModeChange: (mode: ThreadMode) => void;
 };
 
-export function ThreadInput({ onGenerate, isGenerating, remainingCredits, isPro }: ThreadInputProps) {
-  const [topic, setTopic] = useState("");
-  const [vibe, setVibe] = useState(VIBES[0]?.value ?? "funny");
-  const [template, setTemplate] = useState(TEMPLATES[0]);
+export function ThreadInput({
+  onGenerate,
+  isGenerating,
+  remainingCredits,
+  isPro,
+  mode,
+  onModeChange,
+}: ThreadInputProps) {
+  const [draft, setDraft] = useState("");
+  const [refinePrompt, setRefinePrompt] = useState("");
+  const [selectedMode, setSelectedMode] = useState<ThreadMode>(mode);
+  const [style, setStyle] = useState("raw");
+  const [error, setError] = useState<string>("");
 
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+  useEffect(() => {
+    setSelectedMode(mode);
+  }, [mode]);
+
+  const submissionsLocked = !isPro && remainingCredits <= 0;
+
+  const handleModeSelection = (nextMode: ThreadMode) => {
+    setSelectedMode(nextMode);
+    onModeChange(nextMode);
+  };
+
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (!topic.trim()) {
-      toast.error("Drop a topic first. ThreadForge needs a spark.");
+    const trimmedDraft = draft.trim();
+    const trimmedRefine = refinePrompt.trim();
+
+    const payload = {
+      draft: trimmedDraft,
+      refinePrompt: trimmedRefine ? trimmedRefine : undefined,
+      mode: selectedMode,
+      style,
+    };
+
+    console.log("[ThreadInput] handleSubmit triggered – payload:", payload);
+
+    if (!trimmedDraft) {
+      setError("Draft boş olamaz, önce kaba halini yaz!");
       return;
     }
 
-    await onGenerate({ topic, vibe, template });
+    setError("");
+    onGenerate(payload);
   };
 
   return (
-    <div className="rounded-2xl border border-neutral-800 bg-neutral-950/60 p-6 shadow-lg shadow-brand/5">
-      <div className="mb-6 flex items-start justify-between">
-        <div>
-          <h2 className="text-xl font-semibold text-neutral-50">Generate your thread</h2>
-          <p className="text-sm text-neutral-400">
-            Toss in a topic. ThreadForge will cook up hooks, emojis, cliffhangers — the works.
-          </p>
-        </div>
-        <Badge className="bg-brand/20 text-brand">Vibe check: This hook slaps</Badge>
-      </div>
-
-      <div className="mb-5">
-        <p className="text-sm text-neutral-400">
-          {isPro ? "Pro mode unlocked — generate without limits." : `You have ${Math.max(remainingCredits, 0)} free threads left this month.`}
-        </p>
-      </div>
-
-      <form className="space-y-5" onSubmit={handleSubmit}>
-        <div>
-          <label className="mb-2 block text-sm font-medium text-neutral-200">Topic</label>
+    <div className="space-y-4 rounded-2xl border border-neutral-800 bg-neutral-950/60 p-6">
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div className="space-y-2">
+          <label htmlFor="draft" className="text-sm font-medium text-neutral-200">
+            Draft tweet'in (kaba halini yaz)
+          </label>
           <Textarea
-            value={topic}
-            onChange={(event) => setTopic(event.target.value)}
-            placeholder="Bootstrapping a micro-SaaS, teasing your next launch, or dissecting a growth lever? Drop it here."
+            id="draft"
+            placeholder="Örn: Vibe coding kaosu, bug'lar her yerde ama Pomodoro tweak yaptım..."
+            value={draft}
+            onChange={(event) => {
+              setDraft(event.target.value);
+              console.log("[ThreadInput] Draft change:", event.target.value);
+            }}
+            rows={6}
+            disabled={isGenerating}
           />
         </div>
 
-        <div className="grid gap-5 md:grid-cols-2">
-          <div>
-            <label className="mb-2 block text-sm font-medium text-neutral-200">Vibe</label>
-            <Select value={vibe} onChange={(event) => setVibe(event.target.value)}>
-              {VIBES.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </Select>
-          </div>
-
-          <div>
-            <label className="mb-2 block text-sm font-medium text-neutral-200">Template</label>
-            <Select value={template} onChange={(event) => setTemplate(event.target.value)}>
-              {TEMPLATES.map((option) => (
-                <option key={option} value={option}>
-                  {option}
-                </option>
-              ))}
-            </Select>
-          </div>
+        <div className="space-y-2">
+          <label htmlFor="refinePrompt" className="text-sm font-medium text-neutral-200">
+            Refine prompt (opsiyonel — örn: &quot;funny yap, thread'e çevir&quot;)
+          </label>
+          <Input
+            id="refinePrompt"
+            placeholder="Opsiyonel: örn. 'funny yap, CTA DM olsun'"
+            value={refinePrompt}
+            onChange={(event) => {
+              setRefinePrompt(event.target.value);
+              console.log("[ThreadInput] Refine prompt change:", event.target.value);
+            }}
+            disabled={isGenerating}
+          />
         </div>
 
-        <Button type="submit" className="w-full" disabled={isGenerating}>
-          {isGenerating ? "Summoning thread magic..." : "Generate thread"}
+        <div className="space-y-2">
+          <label htmlFor="mode" className="text-sm font-medium text-neutral-200">
+            Mode
+          </label>
+          <Select
+            value={selectedMode}
+            onValueChange={(val) => handleModeSelection(val as ThreadMode)}
+            disabled={isGenerating}
+          >
+            <SelectTrigger id="mode">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="thread">Full Thread (4-6 tweet)</SelectItem>
+              <SelectItem value="single">Quick Single Post</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div className="space-y-2">
+          <label htmlFor="style" className="text-sm font-medium text-neutral-200">
+            Style
+          </label>
+          <Select
+            value={style}
+            onValueChange={(val) => setStyle(val)}
+            disabled={isGenerating}
+          >
+            <SelectTrigger id="style">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="raw">Raw narrative</SelectItem>
+              <SelectItem value="funny">Funny (self-deprecating)</SelectItem>
+              <SelectItem value="inspirational">Inspirational journey</SelectItem>
+              <SelectItem value="data-driven">Data-driven listicle</SelectItem>
+              <SelectItem value="teaser">Teaser mystery</SelectItem>
+              <SelectItem value="narrative">Narrative story</SelectItem>
+              <SelectItem value="listicle">Listicle hacks</SelectItem>
+              <SelectItem value="question-based">Question-based cliffhanger</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        {error ? (
+          <p className="rounded bg-red-900/20 p-2 text-sm text-red-500">{error}</p>
+        ) : null}
+
+        <Button
+          type="submit"
+          disabled={isGenerating || submissionsLocked || !draft.trim()}
+          className="w-full"
+        >
+          {isGenerating
+            ? "Forging..."
+            : submissionsLocked
+              ? "Out of Credits – Upgrade!"
+              : `Forge ${selectedMode === "thread" ? "Thread" : "Post"}`}
         </Button>
+
+        {submissionsLocked && !isPro ? (
+          <p className="text-sm text-orange-400">
+            Free limit hit. Pro'ya geç, unlimited vibe!
+          </p>
+        ) : null}
       </form>
     </div>
   );

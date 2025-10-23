@@ -8,8 +8,12 @@ create table if not exists public.users (
   email text not null unique,
   threads_used integer not null default 0,
   subscription_status text not null default 'free',
+  x_tokens jsonb,
   created_at timestamptz not null default timezone('utc'::text, now())
 );
+
+alter table public.users
+  add column if not exists x_tokens jsonb;
 
 alter table public.users enable row level security;
 

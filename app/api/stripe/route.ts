@@ -7,10 +7,10 @@ export async function POST(request: Request) {
   try {
     const supabase = createSupabaseRouteHandlerClient();
     const {
-      data: { session },
-    } = await supabase.auth.getSession();
+      data: { user },
+    } = await supabase.auth.getUser();
 
-    if (!session?.user) {
+    if (!user) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
@@ -36,15 +36,15 @@ export async function POST(request: Request) {
       ],
       subscription_data: {
         metadata: {
-          userId: session.user.id,
+          userId: user.id,
         },
       },
       success_url: `${origin}/dashboard?upgrade=success`,
       cancel_url: `${origin}/dashboard?upgrade=cancelled`,
-      customer_email: session.user.email ?? undefined,
-      client_reference_id: session.user.id,
+      customer_email: user.email ?? undefined,
+      client_reference_id: user.id,
       metadata: {
-        userId: session.user.id,
+        userId: user.id,
       },
     });
 
