@@ -1,0 +1,203 @@
+{
+  "main": {
+    "title": "ThreadForge",
+    "subtitle": "Generate viral threads and posts in seconds.",
+    "thread_input": {
+      "topic_label": "What do you want to write about?",
+      "topic_placeholder": "e.g., 'How I built a SaaS in 30 days'",
+      "emojis_label": "Include Emojis",
+      "hashtags_label": "Include Hashtags",
+      "high_quality_label": "High Quality Thread",
+      "loading_button": "Generating...",
+      "generate_button": "Generate Thread"
+    },
+    "error": {
+      "title": "Error:",
+      "message": "Something went wrong. Please try again."
+    }
+  },
+  "landing": {
+    "header": {
+      "login": "Login",
+      "signup": "Sign Up",
+      "dashboard": "Dashboard"
+    },
+    "hero": {
+      "badge": "AI-Powered Thread Generation",
+      "title": "Create Viral Threads in Seconds",
+      "subtitle": "Transform your ideas into engaging Twitter threads with the power of AI",
+      "description": "Stop spending hours crafting threads. Let ThreadForge generate high-quality, engaging content that resonates with your audience.",
+      "cta_primary": "Start Creating Free",
+      "cta_secondary": "See Demo",
+      "stat_threads": "Threads Generated",
+      "stat_satisfaction": "User Satisfaction",
+      "stat_generation_time": "Average Generation"
+    },
+    "features": {
+      "section_title": "Powerful Features for Content Creators",
+      "section_subtitle": "Everything you need to create engaging threads that captivate your audience",
+      "ai_powered": {
+        "title": "AI-Powered Generation",
+        "description": "Advanced AI technology creates compelling, contextual threads tailored to your topic."
+      },
+      "instant_generation": {
+        "title": "Instant Results",
+        "description": "Generate complete threads in under 30 seconds. No more writer's block or hours of drafting."
+      },
+      "multilingual": {
+        "title": "Multi-Language Support",
+        "description": "Create threads in multiple languages to reach a global audience effortlessly."
+      },
+      "quality_control": {
+        "title": "Quality Control",
+        "description": "Choose between quick generation or high-quality mode for premium, well-researched content."
+      },
+      "customization": {
+        "title": "Full Customization",
+        "description": "Add emojis, hashtags, and customize your threads to match your brand voice perfectly."
+      },
+      "quality_guaranteed": {
+        "title": "Quality Guaranteed",
+        "description": "Every thread is crafted to be engaging, informative, and optimized for maximum reach."
+      }
+    },
+    "how_it_works": {
+      "section_title": "How It Works",
+      "section_subtitle": "From idea to viral thread in three simple steps",
+      "step1": {
+        "title": "Enter Your Topic",
+        "description": "Simply type in what you want to write about. Our AI understands context and nuance."
+      },
+      "step2": {
+        "title": "AI Generates Content",
+        "description": "Our advanced AI crafts a compelling thread with perfect structure and flow in seconds."
+      },
+      "step3": {
+        "title": "Review & Share",
+        "description": "Edit if needed, then share directly to Twitter or copy to your clipboard."
+      },
+      "cta_text": "Ready to create your first viral thread?",
+      "cta_button": "Get Started Now"
+    },
+    "social_proof": {
+      "stats_title": "Trusted by Content Creators Worldwide",
+      "stats": {
+        "users": {
+          "value": "5,000+",
+          "label": "Active Users"
+        },
+        "threads": {
+          "value": "50,000+",
+          "label": "Threads Created"
+        },
+        "engagement": {
+          "value": "+145%",
+          "label": "Avg. Engagement Boost"
+        },
+        "satisfaction": {
+          "value": "4.9/5",
+          "label": "User Rating"
+        }
+      },
+      "testimonials_title": "What Our Users Say",
+      "testimonials_subtitle": "Join thousands of satisfied content creators",
+      "testimonial1": {
+        "name": "Sarah Johnson",
+        "role": "Digital Marketer",
+        "content": "ThreadForge has completely transformed how I create content. What used to take me hours now takes minutes. The quality is outstanding!"
+      },
+      "testimonial2": {
+        "name": "Mike Chen",
+        "role": "Tech Influencer",
+        "content": "I've tried many AI writing tools, but ThreadForge is by far the best for Twitter threads. The engagement on my threads has skyrocketed."
+      },
+      "testimonial3": {
+        "name": "Emma Davis",
+        "role": "Startup Founder",
+        "content": "As a busy founder, ThreadForge saves me so much time. I can consistently share valuable content without spending hours writing."
+      }
+    },
+    "popular_hooks": {
+      "badge": "Viral Hook Formulas",
+      "section_title": "10 Powerful Hook Formulas",
+      "section_subtitle": "Proven templates used by top creators to capture attention and drive engagement",
+      "hover_hint": "Hover to see example",
+      "cta_text": "Ready to use these powerful hooks in your threads?",
+      "cta_button": "Start Creating Now",
+      "vulnerability": {
+        "title": "Vulnerability Hooks",
+        "description": "Share authentic failures and struggles that led to unexpected success. Build deep connection through honesty.",
+        "example": "I lost $50k in my first startup. 6 months later: $200k revenue. Here's what nobody tells you about failure:"
+      },
+      "contrarian": {
+        "title": "Contrarian Hooks",
+        "description": "Challenge popular beliefs with surprising evidence. Stand out by going against the grain.",
+        "example": "Everyone says 'work smarter, not harder'. I did exactly that. Failed spectacularly. Here's the truth they don't tell you:"
+      },
+      "data_proof": {
+        "title": "Data Proof Hooks",
+        "description": "Back up your claims with hard numbers and metrics. Let data do the convincing.",
+        "example": "I tested 47 headlines. 43 failed. These 4 generated $12,000 in revenue. The exact breakdown:"
+      },
+      "case_study": {
+        "title": "Case Study Hooks",
+        "description": "Show real transformation stories with specific results. Prove what's possible with concrete examples.",
+        "example": "$0 to $10k MRR in 90 days. No funding. No team. Here's the exact system we used:"
+      },
+      "storytelling": {
+        "title": "Storytelling Hooks",
+        "description": "Use dramatic moments and emotional journeys. Stories stick in people's minds forever.",
+        "example": "3am. My bank account showed $47. My daughter needed medicine. That moment changed everything. The story:"
+      },
+      "listicle": {
+        "title": "Listicle Hooks",
+        "description": "Share tested tactics and actionable lists. Easy to scan, easy to implement, easy to share.",
+        "example": "I tried 25 productivity hacks. 20 wasted my time. These 5 actually worked (and cost $0):"
+      },
+      "question": {
+        "title": "Question Hooks",
+        "description": "Ask provocative questions that demand answers. Trigger curiosity and engagement instantly.",
+        "example": "Why do 97% of content creators quit in their first year? I studied 500 accounts. Here's the real reason:"
+      },
+      "curiosity_gap": {
+        "title": "Curiosity Gap Hooks",
+        "description": "Create irresistible intrigue with unexpected insights. Make it impossible not to keep reading.",
+        "example": "This 5-minute habit generated 50,000 followers. 99% of creators ignore it. What I learned:"
+      },
+      "urgency": {
+        "title": "Urgency Hooks",
+        "description": "Highlight time-sensitive insights and changes. Create FOMO and immediate action.",
+        "example": "LinkedIn's algorithm just changed. Next 30 days will separate winners from losers. Here's what to do now:"
+      },
+      "achievement": {
+        "title": "Achievement Hooks",
+        "description": "Share milestone breakdowns with every lesson learned. Inspire through transparency.",
+        "example": "Just hit 100k followers. 18 months. Started with 0. Here's every mistake, lesson, and tactic that worked:"
+      }
+    },
+    "footer": {
+      "brand_description": "Create viral Twitter threads and posts with AI-powered technology. Save time and boost engagement.",
+      "product": {
+        "title": "Product",
+        "features": "Features",
+        "pricing": "Pricing",
+        "how_it_works": "How It Works"
+      },
+      "company": {
+        "title": "Company",
+        "about": "About",
+        "blog": "Blog",
+        "contact": "Contact"
+      },
+      "legal": {
+        "title": "Legal",
+        "privacy": "Privacy Policy",
+        "terms": "Terms of Service",
+        "cookies": "Cookie Policy"
+      },
+      "copyright": "© {{year}} ThreadForge. All rights reserved.",
+      "made_with": "Made with",
+      "by_creators": "for creators"
+    }
+  }
+}

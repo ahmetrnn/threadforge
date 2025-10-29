@@ -1,0 +1,203 @@
+{
+  "main": {
+    "title": "ThreadForge",
+    "subtitle": "Saniyeler içinde viral thread'ler ve gönderiler oluşturun.",
+    "thread_input": {
+      "topic_label": "Ne hakkında yazmak istersiniz?",
+      "topic_placeholder": "ör., '30 günde nasıl bir SaaS kurdum'",
+      "emojis_label": "Emoji Ekle",
+      "hashtags_label": "Hashtag Ekle",
+      "high_quality_label": "Yüksek Kaliteli Konu",
+      "loading_button": "Oluşturuluyor...",
+      "generate_button": "Konu Oluştur"
+    },
+    "error": {
+      "title": "Hata:",
+      "message": "Bir şeyler ters gitti. Lütfen tekrar deneyin."
+    }
+  },
+  "landing": {
+    "header": {
+      "login": "Giriş Yap",
+      "signup": "Kaydol",
+      "dashboard": "Kontrol Paneli"
+    },
+    "hero": {
+      "badge": "Yapay Zeka Destekli Konu Oluşturma",
+      "title": "Saniyeler İçinde Viral Konular Oluşturun",
+      "subtitle": "Fikirlerinizi yapay zeka gücüyle etkileyici Twitter konularına dönüştürün",
+      "description": "Konu oluşturmak için saatler harcamayı bırakın. ThreadForge, kitlenizle rezonansa giren yüksek kaliteli, ilgi çekici içerikler oluştursun.",
+      "cta_primary": "Ücretsiz Başla",
+      "cta_secondary": "Demo İzle",
+      "stat_threads": "Oluşturulan Konu",
+      "stat_satisfaction": "Kullanıcı Memnuniyeti",
+      "stat_generation_time": "Ortalama Oluşturma"
+    },
+    "features": {
+      "section_title": "İçerik Üreticileri İçin Güçlü Özellikler",
+      "section_subtitle": "Kitlenizi büyüleyen ilgi çekici konular oluşturmak için ihtiyacınız olan her şey",
+      "ai_powered": {
+        "title": "Yapay Zeka Destekli Üretim",
+        "description": "Gelişmiş yapay zeka teknolojisi, konunuza özel ilgi çekici, bağlamsal konular oluşturur."
+      },
+      "instant_generation": {
+        "title": "Anında Sonuçlar",
+        "description": "30 saniyeden kısa sürede eksiksiz konular oluşturun. Artık yazma blokajı veya saatlerce taslak hazırlama yok."
+      },
+      "multilingual": {
+        "title": "Çoklu Dil Desteği",
+        "description": "Küresel bir kitleye zahmetsizce ulaşmak için birden fazla dilde konu oluşturun."
+      },
+      "quality_control": {
+        "title": "Kalite Kontrol",
+        "description": "Hızlı üretim veya premium, iyi araştırılmış içerik için yüksek kalite modu arasında seçim yapın."
+      },
+      "customization": {
+        "title": "Tam Özelleştirme",
+        "description": "Marka sesinizle mükemmel uyum sağlamak için emoji, hashtag ekleyin ve konularınızı özelleştirin."
+      },
+      "quality_guaranteed": {
+        "title": "Kalite Garantili",
+        "description": "Her konu, ilgi çekici, bilgilendirici ve maksimum erişim için optimize edilmiş şekilde hazırlanır."
+      }
+    },
+    "how_it_works": {
+      "section_title": "Nasıl Çalışır",
+      "section_subtitle": "Fikirden viral konuya üç basit adımda",
+      "step1": {
+        "title": "Konunuzu Girin",
+        "description": "Ne hakkında yazmak istediğinizi yazmanız yeterli. Yapay zekamız bağlamı ve nüansı anlar."
+      },
+      "step2": {
+        "title": "Yapay Zeka İçerik Oluşturur",
+        "description": "Gelişmiş yapay zekamız, saniyeler içinde mükemmel yapı ve akışa sahip ilgi çekici bir konu hazırlar."
+      },
+      "step3": {
+        "title": "İnceleyin ve Paylaşın",
+        "description": "Gerekirse düzenleyin, ardından doğrudan Twitter'a paylaşın veya panonuza kopyalayın."
+      },
+      "cta_text": "İlk viral konunuzu oluşturmaya hazır mısınız?",
+      "cta_button": "Hemen Başla"
+    },
+    "social_proof": {
+      "stats_title": "Dünya Çapında İçerik Üreticileri Tarafından Güvenilir",
+      "stats": {
+        "users": {
+          "value": "5.000+",
+          "label": "Aktif Kullanıcı"
+        },
+        "threads": {
+          "value": "50.000+",
+          "label": "Oluşturulan Konu"
+        },
+        "engagement": {
+          "value": "+%145",
+          "label": "Ort. Etkileşim Artışı"
+        },
+        "satisfaction": {
+          "value": "4.9/5",
+          "label": "Kullanıcı Puanı"
+        }
+      },
+      "testimonials_title": "Kullanıcılarımız Ne Diyor",
+      "testimonials_subtitle": "Binlerce memnun içerik üreticisine katılın",
+      "testimonial1": {
+        "name": "Ayşe Yılmaz",
+        "role": "Dijital Pazarlamacı",
+        "content": "ThreadForge, içerik oluşturma şeklimi tamamen değiştirdi. Eskiden saatlerimi alan işler artık dakikalar sürüyor. Kalite mükemmel!"
+      },
+      "testimonial2": {
+        "name": "Mehmet Kaya",
+        "role": "Teknoloji Etkileyicisi",
+        "content": "Birçok yapay zeka yazma aracı denedim, ancak ThreadForge Twitter konuları için açık ara en iyisi. Konularımdaki etkileşim fırladı."
+      },
+      "testimonial3": {
+        "name": "Zeynep Demir",
+        "role": "Startup Kurucusu",
+        "content": "Meşgul bir kurucu olarak ThreadForge bana çok fazla zaman kazandırıyor. Saatler harcamadan sürekli değerli içerik paylaşabiliyorum."
+      }
+    },
+    "popular_hooks": {
+      "badge": "Viral Hook Formülleri",
+      "section_title": "10 Güçlü Hook Formülü",
+      "section_subtitle": "En iyi içerik üreticilerinin dikkat çekmek ve etkileşimi artırmak için kullandığı kanıtlanmış şablonlar",
+      "hover_hint": "Örnek görmek için üzerine gelin",
+      "cta_text": "Bu güçlü hook'ları konularınızda kullanmaya hazır mısınız?",
+      "cta_button": "Hemen Başla",
+      "vulnerability": {
+        "title": "Kırılganlık Hook'ları",
+        "description": "Beklenmedik başarıya yol açan gerçek başarısızlıkları ve mücadeleleri paylaşın. Dürüstlükle derin bağlantı kurun.",
+        "example": "İlk startup'ımda 50 bin TL kaybettim. 6 ay sonra: 200 bin TL gelir. İşte başarısızlık hakkında kimsenin söylemediği şeyler:"
+      },
+      "contrarian": {
+        "title": "Karşıt Görüş Hook'ları",
+        "description": "Popüler inançlara şaşırtıcı kanıtlarla meydan okuyun. Akıntıya karşı giderek öne çıkın.",
+        "example": "Herkes 'daha akıllı çalış, daha sıkı değil' diyor. Ben tam olarak öyle yaptım. Görkemli bir şekilde başarısız oldum. İşte size söylemedikleri gerçek:"
+      },
+      "data_proof": {
+        "title": "Veri Kanıtı Hook'ları",
+        "description": "İddialarınızı somut sayılar ve metriklerle destekleyin. Verilerin ikna etmesine izin verin.",
+        "example": "47 başlık test ettim. 43'ü başarısız oldu. Bu 4'ü 12.000 TL gelir üretti. Tam detaylar:"
+      },
+      "case_study": {
+        "title": "Vaka Çalışması Hook'ları",
+        "description": "Spesifik sonuçlarla gerçek dönüşüm hikayelerini gösterin. Somut örneklerle mümkün olanı kanıtlayın.",
+        "example": "90 günde 0 TL'den 10 bin TL'ye. Fon yok. Ekip yok. İşte kullandığımız tam sistem:"
+      },
+      "storytelling": {
+        "title": "Hikaye Anlatımı Hook'ları",
+        "description": "Dramatik anları ve duygusal yolculukları kullanın. Hikayeler insanların zihninde sonsuza kadar kalır.",
+        "example": "Sabah 3. Banka hesabım 47 TL gösteriyordu. Kızımın ilaca ihtiyacı vardı. O an her şeyi değiştirdi. Hikaye:"
+      },
+      "listicle": {
+        "title": "Liste Hook'ları",
+        "description": "Test edilmiş taktikler ve uygulanabilir listeler paylaşın. Taramak kolay, uygulamak kolay, paylaşmak kolay.",
+        "example": "25 verimlilik ipucu denedim. 20'si zamanımı boşa harcadı. Bu 5'i gerçekten işe yaradı (ve 0 TL'ye mal oldu):"
+      },
+      "question": {
+        "title": "Soru Hook'ları",
+        "description": "Cevap gerektiren kışkırtıcı sorular sorun. Merakı ve etkileşimi anında tetikleyin.",
+        "example": "İçerik üreticilerinin %97'si neden ilk yılda bırakıyor? 500 hesap inceledim. İşte gerçek sebep:"
+      },
+      "curiosity_gap": {
+        "title": "Merak Boşluğu Hook'ları",
+        "description": "Beklenmedik içgörülerle karşı konulamaz bir entrika yaratın. Okumaya devam etmemek imkansız hale getirin.",
+        "example": "Bu 5 dakikalık alışkanlık 50 bin takipçi kazandırdı. İçerik üreticilerinin %99'u görmezden geliyor. Öğrendiklerim:"
+      },
+      "urgency": {
+        "title": "Aciliyet Hook'ları",
+        "description": "Zamana duyarlı içgörüleri ve değişiklikleri vurgulayın. FOMO ve anında eylem yaratın.",
+        "example": "LinkedIn'in algoritması az önce değişti. Önümüzdeki 30 gün kazananları kaybedenlerden ayıracak. İşte şimdi yapmanız gerekenler:"
+      },
+      "achievement": {
+        "title": "Başarı Hook'ları",
+        "description": "Öğrenilen her dersle birlikte dönüm noktası detaylarını paylaşın. Şeffaflıkla ilham verin.",
+        "example": "100 bin takipçiye ulaştım. 18 ay. 0'dan başladım. İşte işe yarayan her hata, ders ve taktik:"
+      }
+    },
+    "footer": {
+      "brand_description": "Yapay zeka destekli teknoloji ile viral Twitter konuları ve gönderileri oluşturun. Zaman kazanın ve etkileşimi artırın.",
+      "product": {
+        "title": "Ürün",
+        "features": "Özellikler",
+        "pricing": "Fiyatlandırma",
+        "how_it_works": "Nasıl Çalışır"
+      },
+      "company": {
+        "title": "Şirket",
+        "about": "Hakkında",
+        "blog": "Blog",
+        "contact": "İletişim"
+      },
+      "legal": {
+        "title": "Yasal",
+        "privacy": "Gizlilik Politikası",
+        "terms": "Kullanım Şartları",
+        "cookies": "Çerez Politikası"
+      },
+      "copyright": "© {{year}} ThreadForge. Tüm hakları saklıdır.",
+      "made_with": "İçerik üreticileri için",
+      "by_creators": "ile yapılmıştır"
+    }
+  }
+}

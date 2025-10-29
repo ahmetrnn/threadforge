@@ -23,13 +23,32 @@ export async function POST(req: NextRequest) {
     // Fetch x_tokens from Supabase
     const { data: userData, error: fetchError } = await supabase
       .from('users')
-      .select('x_tokens')
+      .select('x_tokens, x_username, x_connected_at')
       .eq('auth_user_id', user.id)
       .single();
 
-    if (fetchError || !userData?.x_tokens?.access_token) {
-      console.error("[API POST] Token fetch error:", fetchError);
-      return NextResponse.json({ error: 'X connection missing – connect account!' }, { status: 401 });
+    console.log("[API POST] User data:", {
+      hasData: !!userData,
+      hasTokens: !!userData?.x_tokens,
+      hasAccessToken: !!userData?.x_tokens?.access_token,
+      username: userData?.x_username,
+      connectedAt: userData?.x_connected_at,
+      fetchError
+    });
+
+    if (fetchError) {
+      console.error("[API POST] Database fetch error:", fetchError);
+      return NextResponse.json({ error: `Database error: ${fetchError.message}` }, { status: 500 });
+    }
+
+    if (!userData) {
+      console.error("[API POST] No user data found");
+      return NextResponse.json({ error: 'User data not found' }, { status: 404 });
+    }
+
+    if (!userData.x_tokens?.access_token) {
+      console.error("[API POST] No X access token - user needs to connect");
+      return NextResponse.json({ error: 'X account not connected. Click "Connect X for Auto-Post" first!' }, { status: 401 });
     }
 
     const access_token = userData.x_tokens.access_token;

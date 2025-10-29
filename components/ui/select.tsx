@@ -126,7 +126,7 @@ export const SelectTrigger = React.forwardRef<
     useSelectContext("SelectTrigger");
 
   const mergedClassName = cn(
-    "h-11 w-full rounded-md border border-neutral-800 bg-neutral-950 px-3 text-sm text-neutral-100 placeholder:text-neutral-500 focus-visible:border-brand focus-visible:ring-1 focus-visible:ring-brand",
+    "h-11 w-full rounded-md border border-white/10 bg-[#0a0a0a] px-3 text-sm text-gray-100 placeholder:text-gray-500 focus-visible:border-cyan-500/50 focus-visible:ring-1 focus-visible:ring-cyan-500/50 transition-colors",
     parentClassName,
     className
   );
