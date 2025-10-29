@@ -12,12 +12,21 @@ type ThreadType = "vulnerability" | "data-driven" | "contrarian" | "journey" | "
 type Tone = "casual" | "inspiring" | "educational" | "professional" | "controversial" | "humorous" | "storytelling" | "urgent" | "empathetic";
 type Language = "en" | "tr";
 
+type Template = {
+  id: string;
+  slug: string;
+  name: string;
+  description: string | null;
+  outline: string | null;
+};
+
 interface ThreadInputProps {
-  onGenerate: (topic: string, emojis: boolean, hashtags: boolean, isHighQuality?: boolean, language?: string) => void;
+  onGenerate: (topic: string, emojis: boolean, hashtags: boolean, isHighQuality?: boolean, language?: string, hookSlug?: string) => void;
   isLoading: boolean;
   mode: "basic" | "advanced";
   isHighQuality?: boolean;
   onHighQualityChange?: (value: boolean) => void;
+  templates: Template[];
 }
 
 const threadTypes = {
@@ -106,7 +115,8 @@ export const ThreadInput = ({
   isLoading,
   mode,
   isHighQuality,
-  onHighQualityChange = () => {}
+  onHighQualityChange = () => {},
+  templates
 }: ThreadInputProps) => {
   const [topic, setTopic] = useState("");
   const [threadType, setThreadType] = useState<ThreadType>("vulnerability");
@@ -114,6 +124,7 @@ export const ThreadInput = ({
   const [selectedMode, setSelectedMode] = useState<ThreadMode>("thread");
   const [language, setLanguage] = useState<Language>("en");
   const [isHighQualityChecked, setIsHighQualityChecked] = useState(isHighQuality || false);
+  const [selectedHook, setSelectedHook] = useState<string>("");
   const i18n = useI18n();
   const { language: currentLanguage } = useLanguage();
 
@@ -128,7 +139,7 @@ export const ThreadInput = ({
       // Pass the new parameters to the onGenerate function
       // Note: The API expects specific parameter names, so we map them accordingly
       // Pass the language parameter to ensure correct language generation
-      onGenerate(topic, true, true, isHighQualityChecked, language);
+      onGenerate(topic, true, true, isHighQualityChecked, language, selectedHook || undefined);
     }
   };
 
@@ -192,6 +203,35 @@ export const ThreadInput = ({
           </Select>
         </div>
       </div>
+
+      {/* Hook Selection */}
+      {templates.length > 0 && (
+        <div>
+          <Label className="text-sm font-medium">
+            {currentLang === "tr" ? "Hook Şablonu (opsiyonel)" : "Hook Template (optional)"}
+          </Label>
+          <Select value={selectedHook} onValueChange={setSelectedHook}>
+            <SelectTrigger className="mt-2">
+              <SelectValue placeholder={currentLang === "tr" ? "Seçiniz (varsayılan)" : "Select (default)"} />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="">
+                {currentLang === "tr" ? "Varsayılan" : "Default"}
+              </SelectItem>
+              {templates.map((template) => (
+                <SelectItem key={template.id} value={template.slug}>
+                  {template.name} {template.description && `- ${template.description}`}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          {selectedHook && templates.find(t => t.slug === selectedHook)?.outline && (
+            <p className="mt-2 text-xs text-white/60">
+              {templates.find(t => t.slug === selectedHook)?.outline}
+            </p>
+          )}
+        </div>
+      )}
 
       {/* Mode and Language Row */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
