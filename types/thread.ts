@@ -1,15 +1,33 @@
-export type ThreadTweet = {
-  tweetNumber: number;
+export type Language = "en" | "tr";
+
+export interface ThreadTweet {
+  id: number;
   text: string;
-  emojis: string[];
-  isCta: boolean;
-};
+  tweetNumber?: number;
+  emojis?: string[];
+  isCta?: boolean;
+}
 
-export type ThreadMode = "thread" | "single";
+export interface ThreadData {
+  [key: string]: ThreadTweet[];
+}
 
-export type ThreadResponse = {
+export type ThreadMode = "thread" | "tweet" | "single";
+
+export interface GroundingSource {
+  url: string;
+  title: string;
+  text: string;
+  snippet?: string;
+}
+
+export interface ThreadResponse {
   thread: ThreadTweet[];
-  estimatedImpressions: string;
-  publishTips?: string;
+  credits: number;
+  estimatedImpressions?: number;
+  publishTips?: string[];
+  qualityScore?: number;
+  sources?: GroundingSource[];
+  isGrounded?: boolean;
   mode?: ThreadMode;
-};
+}

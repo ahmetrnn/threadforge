@@ -23,7 +23,7 @@ export default async function DashboardPage() {
 
   let { data: profile } = await supabase
     .from("users")
-    .select("threads_used, subscription_status, email, x_username, x_connected_at")
+    .select("threads_used, subscription_status, email, x_username, x_connected_at, x_tokens")
     .eq("auth_user_id", userId)
     .maybeSingle();
 
@@ -38,23 +38,29 @@ export default async function DashboardPage() {
         },
         { onConflict: "email" }
       )
-      .select("threads_used, subscription_status, email, x_username, x_connected_at")
+      .select("threads_used, subscription_status, email, x_username, x_connected_at, x_tokens")
       .single();
-    profile = insertedProfile ?? { threads_used: 0, subscription_status: "free", email, x_username: null, x_connected_at: null };
+    profile = insertedProfile ?? { threads_used: 0, subscription_status: "free", email, x_username: null, x_connected_at: null, x_tokens: null };
   }
 
   const xTokens = (profile?.x_tokens ?? null) as { access_token?: string } | null;
   const isXConnected = Boolean(xTokens?.access_token);
 
   return (
-    <div className="mx-auto max-w-6xl space-y-8 px-4 py-10">
-      <DashboardClient
-        initialThreadCount={profile?.threads_used ?? 0}
-        subscriptionStatus={(profile?.subscription_status as "free" | "pro") ?? "free"}
-        email={profile?.email ?? email}
-        xUsername={profile?.x_username}
-        xConnectedAt={profile?.x_connected_at}
-      />
+    <div className="relative min-h-screen">
+      {/* Futuristic background effects */}
+      <div className="pointer-events-none fixed inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-purple-950/10 via-[#0a0a0a] to-[#0a0a0a]" />
+      <div className="pointer-events-none fixed inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZGVmcz48cGF0dGVybiBpZD0iZ3JpZCIgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiBwYXR0ZXJuVW5pdHM9InVzZXJTcGFjZU9uVXNlIj48cGF0aCBkPSJNIDQwIDAgTCAwIDAgMCA0MCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJyZ2JhKDI1NSwyNTUsMjU1LDAuMDIpIiBzdHJva2Utd2lkdGg9IjEiLz48L3BhdHRlcm4+PC9kZWZzPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjZ3JpZCkiLz48L3N2Zz4=')] opacity-30" />
+
+      <div className="relative z-10 mx-auto max-w-7xl space-y-8 px-4 py-10">
+        <DashboardClient
+          initialThreadCount={profile?.threads_used ?? 0}
+          subscriptionStatus={(profile?.subscription_status as "free" | "pro") ?? "free"}
+          email={profile?.email ?? email}
+          xUsername={profile?.x_username}
+          xConnectedAt={profile?.x_connected_at}
+        />
+      </div>
     </div>
   );
 }

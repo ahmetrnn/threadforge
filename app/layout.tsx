@@ -3,6 +3,7 @@ import { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { ReactNode } from "react";
 import { Toaster } from "react-hot-toast";
+import { LanguageProvider } from "@/lib/i18n/context";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -28,11 +29,13 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${inter.className} bg-[#050505] text-neutral-100`}> 
-        <div className="min-h-screen bg-gradient-to-b from-black via-neutral-950 to-black">
-          {children}
-        </div>
-        <Toaster position="top-right" toastOptions={{ style: { background: "#111", color: "#fff" } }} />
+      <body className={`${inter.className} bg-[#050505] text-neutral-100`}>
+        <LanguageProvider>
+          <div className="min-h-screen bg-gradient-to-b from-black via-neutral-950 to-black">
+            {children}
+          </div>
+          <Toaster position="top-right" toastOptions={{ style: { background: "#111", color: "#fff" } }} />
+        </LanguageProvider>
       </body>
     </html>
   );

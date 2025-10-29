@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 
@@ -18,8 +18,16 @@ export function XAccountConnection({ xUsername, xConnectedAt }: XAccountConnecti
   const router = useRouter();
   const [isConnecting, setIsConnecting] = useState(false);
   const [isDisconnecting, setIsDisconnecting] = useState(false);
+  const [formattedDate, setFormattedDate] = useState<string>("");
 
   const isConnected = !!xUsername;
+
+  useEffect(() => {
+    // Format date on client side only to avoid hydration mismatch
+    if (xConnectedAt) {
+      setFormattedDate(new Date(xConnectedAt).toLocaleDateString());
+    }
+  }, [xConnectedAt]);
 
   const handleConnect = async () => {
     try {
@@ -70,15 +78,17 @@ export function XAccountConnection({ xUsername, xConnectedAt }: XAccountConnecti
   };
 
   return (
-    <div className="rounded-2xl border border-neutral-800 bg-neutral-950/60 p-6">
-      <h3 className="text-lg font-semibold text-neutral-100">X Account</h3>
+    <div className="group relative overflow-hidden rounded-2xl border border-white/10 bg-white/[0.02] p-8 backdrop-blur-xl transition-all duration-500 hover:border-white/20">
+      <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-cyan-500/50 to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
+
+      <h3 className="text-lg font-semibold text-white">X Account</h3>
 
       {isConnected ? (
-        <div className="mt-4 space-y-4">
-          <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-neutral-800">
+        <div className="mt-6 space-y-6">
+          <div className="flex items-center gap-4">
+            <div className="flex h-12 w-12 items-center justify-center rounded-full border border-white/10 bg-white/5 backdrop-blur-sm">
               <svg
-                className="h-5 w-5 text-neutral-100"
+                className="h-6 w-6 text-cyan-400"
                 fill="currentColor"
                 viewBox="0 0 24 24"
                 aria-hidden="true"
@@ -87,17 +97,17 @@ export function XAccountConnection({ xUsername, xConnectedAt }: XAccountConnecti
               </svg>
             </div>
             <div>
-              <p className="text-sm font-medium text-neutral-100">@{xUsername}</p>
-              {xConnectedAt && (
-                <p className="text-xs text-neutral-400">
-                  Connected {new Date(xConnectedAt).toLocaleDateString()}
+              <p className="text-base font-semibold text-white">@{xUsername}</p>
+              {formattedDate && (
+                <p className="text-sm font-light text-white/50">
+                  Connected {formattedDate}
                 </p>
               )}
             </div>
           </div>
           <Button
             variant="outline"
-            className="w-full"
+            className="w-full border-white/20 bg-white/5 text-white hover:border-red-500/40 hover:bg-red-500/10 hover:text-red-400"
             onClick={handleDisconnect}
             disabled={isDisconnecting}
           >
@@ -105,12 +115,12 @@ export function XAccountConnection({ xUsername, xConnectedAt }: XAccountConnecti
           </Button>
         </div>
       ) : (
-        <div className="mt-4 space-y-3">
-          <p className="text-sm text-neutral-400">
+        <div className="mt-6 space-y-4">
+          <p className="text-sm font-light leading-relaxed text-white/70">
             Connect your X account to post threads directly from ThreadForge.
           </p>
           <Button
-            className="w-full"
+            className="w-full bg-cyan-500 text-black font-semibold shadow-[0_0_30px_rgba(0,255,255,0.4)] transition-all duration-300 hover:scale-105 hover:bg-cyan-400 hover:shadow-[0_0_50px_rgba(0,255,255,0.6)]"
             onClick={handleConnect}
             disabled={isConnecting}
           >

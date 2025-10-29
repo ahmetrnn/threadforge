@@ -37,7 +37,7 @@ export function ConnectXButton({ className, isConnected = false }: ConnectXButto
         response_type: 'code',
         client_id: clientId,
         redirect_uri: redirectUri,
-        scope: 'tweet.write offline.access',
+        scope: 'tweet.read tweet.write users.read offline.access',
         state,
         code_challenge: codeChallenge,
         code_challenge_method: 'S256',
@@ -54,7 +54,7 @@ export function ConnectXButton({ className, isConnected = false }: ConnectXButto
     <button
       onClick={handleConnect}
       disabled={isLoading}
-      className={`flex items-center justify-center rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-500 disabled:cursor-not-allowed disabled:bg-blue-800 ${className ?? ''}`}
+      className={`flex items-center justify-center rounded-xl border border-cyan-500/30 bg-cyan-500/10 px-6 py-3 text-sm font-semibold text-cyan-400 backdrop-blur-sm transition-all duration-300 hover:border-cyan-500/50 hover:bg-cyan-500/20 hover:shadow-[0_0_20px_rgba(0,255,255,0.3)] disabled:cursor-not-allowed disabled:opacity-50 ${className ?? ''}`}
     >
       {isLoading ? 'Connecting…' : isConnected ? 'Reconnect X' : 'Connect X for Auto-Post'}
     </button>
