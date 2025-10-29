@@ -46,6 +46,12 @@ export default async function DashboardPage() {
   const xTokens = (profile?.x_tokens ?? null) as { access_token?: string } | null;
   const isXConnected = Boolean(xTokens?.access_token);
 
+  // Fetch available templates/hooks from Supabase
+  const { data: templates } = await supabase
+    .from("templates")
+    .select("id, slug, name, description, outline")
+    .order("name");
+
   return (
     <div className="relative min-h-screen">
       {/* Futuristic background effects */}
@@ -59,6 +65,7 @@ export default async function DashboardPage() {
           email={profile?.email ?? email}
           xUsername={profile?.x_username}
           xConnectedAt={profile?.x_connected_at}
+          templates={templates ?? []}
         />
       </div>
     </div>

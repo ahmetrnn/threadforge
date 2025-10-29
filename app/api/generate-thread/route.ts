@@ -40,6 +40,7 @@ export async function POST(req: NextRequest) {
     const rawLanguage = typeof body.language === "string" ? body.language.trim() : "en";
     const threadLength = typeof body.threadLength === "number" ? Math.min(Math.max(body.threadLength, 4), 6) : 6; // Default 6, clamp 4-6
     const isHighQuality = typeof body.isHighQuality === "boolean" ? body.isHighQuality : false;
+    const hookSlug = typeof body.hookSlug === "string" ? body.hookSlug.trim() : "";
 
     if (!rawTopic) {
       const errorMsg = rawLanguage === "tr" ? "Konu gerekli" : "Topic required";
@@ -58,6 +59,18 @@ export async function POST(req: NextRequest) {
 
     const isPro = userData?.subscription_status === "pro";
     const maxSinglePostLength = isPro ? 4000 : 280; // Pro users get longer posts
+
+    // Fetch hook template if hookSlug is provided
+    let hookTemplate: { slug: string; name: string; description: string | null; outline: string | null } | null = null;
+    if (hookSlug) {
+      const { data: template } = await supabase
+        .from("templates")
+        .select("slug, name, description, outline")
+        .eq("slug", hookSlug)
+        .single();
+      hookTemplate = template;
+      console.log("[API] Hook template fetched:", hookTemplate?.name);
+    }
 
     // Map old style names to new thread types
     const styleToThreadTypeMap: Record<string, string> = {
@@ -237,6 +250,13 @@ ${language === "tr" ? "Şimdi aşağıdaki kullanıcı girdisi için thread olu�
       // Build user prompt based on mode (flexible vs template)
       let userPrompt: string;
 
+      // Add hook template information if available
+      const hookInfo = hookTemplate
+        ? (language === "tr"
+          ? `\nHOOK ŞABLONU: ${hookTemplate.name}${hookTemplate.description ? ` - ${hookTemplate.description}` : ""}${hookTemplate.outline ? `\nŞablon Yapısı: ${hookTemplate.outline}` : ""}`
+          : `\nHOOK TEMPLATE: ${hookTemplate.name}${hookTemplate.description ? ` - ${hookTemplate.description}` : ""}${hookTemplate.outline ? `\nTemplate Structure: ${hookTemplate.outline}` : ""}`)
+        : "";
+
       if (isFlexibleMode) {
         // Flexible mode: User instruction is the prompt
         userPrompt = language === "tr"
@@ -244,10 +264,11 @@ ${language === "tr" ? "Şimdi aşağıdaki kullanıcı girdisi için thread olu�
 
 MOD: ${mode === "single" ? "Tek post" : `Thread (${threadLength} tweet)`}
 ${mode === "single" && maxSinglePostLength > 280 ? `MAKSIMUM UZUNLUK: ${maxSinglePostLength} karakter (Pro özellik)` : ""}
-${tone ? `TON MODİFİKATÖRÜ: ${tone}` : ""}
+${tone ? `TON MODİFİKATÖRÜ: ${tone}` : ""}${hookInfo}
 DİL: Türkçe
 
 ÇOK ÖNEMLİ: Tüm thread'i TÜRKÇE olarak yaz. Her tweet TÜRKÇE olmalı.
+${hookTemplate ? `\nHook şablonunu kullanarak thread yapısını oluştur.` : ""}
 
 Kullanıcının talimatını yorumla ve ${mode === "single" ? "tek post" : `tam ${threadLength} tweetlik thread`} oluştur.
 ${mode === "thread" ? `TAM ${threadLength} tweet oluştur (daha fazla değil, daha az değil).` : ""}
@@ -256,10 +277,11 @@ SADECE geçerli JSON çıktısı ver.`
 
 MODE: ${mode === "single" ? "Single post" : `Thread (${threadLength} tweets)`}
 ${mode === "single" && maxSinglePostLength > 280 ? `MAX LENGTH: ${maxSinglePostLength} characters (Pro feature)` : ""}
-${tone ? `TONE MODIFIER: ${tone}` : ""}
+${tone ? `TONE MODIFIER: ${tone}` : ""}${hookInfo}
 LANGUAGE: English
 
 VERY IMPORTANT: Write the entire thread in ENGLISH. Every tweet must be in ENGLISH.
+${hookTemplate ? `\nUse the hook template to structure your thread.` : ""}
 
 Interpret the user's instruction and create ${mode === "single" ? "a single post" : `a ${threadLength}-tweet thread`}.
 ${mode === "thread" ? `Generate EXACTLY ${threadLength} tweets (no more, no less).` : ""}
@@ -271,13 +293,14 @@ Output ONLY valid JSON.`;
 
 KONU: ${rawTopic}
 THREAD TİPİ: ${threadType}
-${tone ? `TON: ${tone}` : ""}
+${tone ? `TON: ${tone}` : ""}${hookInfo}
 MOD: ${mode}
 ${mode === "thread" ? `TWEET SAYISI: TAM ${threadLength} tweet oluştur (daha fazla değil, daha az değil)` : ""}
 ${mode === "single" && maxSinglePostLength > 280 ? `MAKSIMUM UZUNLUK: ${maxSinglePostLength} karakter (Pro özellik - daha uzun, derinlemesine post yazabilirsin)` : ""}
 DİL: Türkçe
 
 ÇOK ÖNEMLİ: Tüm thread'i TÜRKÇE olarak yaz. Her tweet TÜRKÇE olmalı.
+${hookTemplate ? `\nHook şablonunu kullanarak thread yapısını oluştur.` : ""}
 
 Unutma:
 - GÜÇLÜ hook ile başla (cesur + gerilim + twist + kanıt)
@@ -292,13 +315,14 @@ ${mode === "thread" ? `- TAM ${threadLength} tweet oluştur` : ""}
 
 TOPIC: ${rawTopic}
 THREAD TYPE: ${threadType}
-${tone ? `TONE: ${tone}` : ""}
+${tone ? `TONE: ${tone}` : ""}${hookInfo}
 MODE: ${mode}
 ${mode === "thread" ? `TWEET COUNT: Generate EXACTLY ${threadLength} tweets (no more, no less)` : ""}
 ${mode === "single" && maxSinglePostLength > 280 ? `MAX LENGTH: ${maxSinglePostLength} characters (Pro feature - write longer, in-depth post)` : ""}
 LANGUAGE: English
 
 VERY IMPORTANT: Write the entire thread in ENGLISH. Every tweet must be in ENGLISH.
+${hookTemplate ? `\nUse the hook template to structure your thread.` : ""}
 
 Remember:
 - Start with a POWERFUL hook (bold + tension + twist + proof)

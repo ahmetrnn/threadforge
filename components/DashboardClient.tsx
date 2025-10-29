@@ -15,15 +15,24 @@ import type { ThreadMode, ThreadResponse, ThreadTweet, GroundingSource } from "@
 
 const FREE_LIMIT = 100;
 
+type Template = {
+  id: string;
+  slug: string;
+  name: string;
+  description: string | null;
+  outline: string | null;
+};
+
 type DashboardClientProps = {
   initialThreadCount: number;
   subscriptionStatus: "free" | "pro";
   email: string;
   xUsername?: string | null;
   xConnectedAt?: string | null;
+  templates: Template[];
 };
 
-export function DashboardClient({ initialThreadCount, subscriptionStatus, email, xUsername, xConnectedAt }: DashboardClientProps) {
+export function DashboardClient({ initialThreadCount, subscriptionStatus, email, xUsername, xConnectedAt, templates }: DashboardClientProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [usageCount, setUsageCount] = useState(initialThreadCount);
@@ -53,7 +62,7 @@ export function DashboardClient({ initialThreadCount, subscriptionStatus, email,
     }
   }, [searchParams, router]);
 
-  const handleGenerate = async (topic: string, emojis: boolean, hashtags: boolean, isHighQuality?: boolean, language?: string) => {
+  const handleGenerate = async (topic: string, emojis: boolean, hashtags: boolean, isHighQuality?: boolean, language?: string, hookSlug?: string) => {
     try {
       setIsGenerating(true);
       const payload = {
@@ -63,6 +72,7 @@ export function DashboardClient({ initialThreadCount, subscriptionStatus, email,
         mode,
         language: language || 'en', // Use provided language or default to English
         isHighQuality,
+        hookSlug, // Add selected hook to payload
       };
       console.log("[DashboardClient] sending /api/generate-thread payload", payload);
       const response = await fetch("/api/generate-thread", {
@@ -191,6 +201,7 @@ export function DashboardClient({ initialThreadCount, subscriptionStatus, email,
             mode={uiMode}
             isHighQuality={false}
             onHighQualityChange={() => {}}
+            templates={templates}
           />
           <ThreadOutput
             thread={thread}
